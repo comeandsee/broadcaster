@@ -43,9 +43,10 @@ namespace BroadcasterIndes
         int currentColumn = 0;
         int numberOfVideos = 0;
 
-        private WebCamManager webCam;
-        private WebCamManager webCam1;
-        private WebCamManager webCam2;
+        private List< WebCamManager> webCam = new List<WebCamManager>();
+        private int indexListWebCam = 0;
+       // private WebCamManager webCam1;
+      //  private WebCamManager webCam2;
         private WebCamManager locaCam;
         private Playlist playlist = new Playlist();
 
@@ -70,10 +71,12 @@ namespace BroadcasterIndes
 
         private void InitializeWebCams()
         {
-            webCam = new WebCamManager();
+            for (int i = 0; i < 3; i++)
+            {
+                webCam.Add( new WebCamManager());
+            }
             locaCam = new WebCamManager();
-            webCam1 = new WebCamManager();
-            webCam2 = new WebCamManager();
+           
 
 
             //local
@@ -98,20 +101,21 @@ namespace BroadcasterIndes
             imgWeb1 = new Image();
             imgWeb2 = new Image();
 
-          //  AddNewWebCam("http://192.168.1.192:8089/video", imgWeb, webCam);
+            //  AddNewWebCam("http://192.168.1.192:8089/video", imgWeb, webCam,indexListWebCam);
+            //indexListWebCam++
 
         }
 
-        private void AddNewWebCam(String ipWebcam, Image img, WebCamManager camManager)
+        private void AddNewWebCam(String ipWebcam, Image img, int index)
         {
             Grid.SetRow(img, currentRowLocal);
             Grid.SetColumn(img, currentColumnLocal);
             webCamGrid.Children.Add(img);
 
-            camManager.StartCamera(LiveCamStatus.webCamLocal2, img, ipWebcam);
+            webCam[index].StartCamera(LiveCamStatus.webCamLocal2, img, ipWebcam);
             img.MouseDown += new MouseButtonEventHandler((sender, e) =>
             {
-                meWebCam_Clicked(sender, e, LiveCamStatus.webCamLocal2, ipWebcam);
+                meWebCam_Clicked(sender, e, LiveCamStatus.webCamLocal2, ipWebcam, index );
             });
 
             NewPlaceInGrid(numberOfColumnsLocal, ref currentRowLocal, ref currentColumnLocal);
@@ -247,12 +251,12 @@ namespace BroadcasterIndes
         }
 
 
-        private void meWebCam_Clicked(object sender, MouseButtonEventArgs e, LiveCamStatus status, String ipWebcam)
+        private void meWebCam_Clicked(object sender, MouseButtonEventArgs e, LiveCamStatus status, String ipWebcam, int index)
         {
             liveGrid.Children.Clear();
             imgLive = new Image();
             liveGrid.Children.Add(imgLive);
-            webCam.StartCamera(status, imgLive, ipWebcam);
+            webCam[index].StartCamera(status, imgLive, ipWebcam);
         }
         private void meLocalCam_Clicked(object sender, MouseButtonEventArgs e, LiveCamStatus status)
         {
@@ -301,7 +305,8 @@ namespace BroadcasterIndes
         private void AddNewIpCam_Click(object sender, RoutedEventArgs e)
         {
             string ipWebcam = webCameraIp.Text;
-            AddNewWebCam(ipWebcam,imgWeb1,webCam1);
+            AddNewWebCam(ipWebcam,imgWeb1, indexListWebCam);
+            indexListWebCam++;
     }
 
         private void PlaylistPlay_Click(object sender, RoutedEventArgs e)
