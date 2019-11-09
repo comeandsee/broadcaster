@@ -5,10 +5,16 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BroadcasterIndes"
         xmlns:wpfTool="clr-namespace:Xceed.Wpf.Toolkit;assembly=Xceed.Wpf.Toolkit"
-        mc:Ignorable="d"
+       mc:Ignorable="d"
         Title="BROADCASTER" Height="auto" Width="auto" FontSize="15"
         HorizontalAlignment="Center" VerticalAlignment="Center"
-        >
+          TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        Background="{DynamicResource MaterialDesignBackground}"
+        TextElement.FontWeight="Medium"
+        TextElement.FontSize="14"
+        FontFamily="pack://application:,,,/MaterialDesignThemes.Wpf;component/Resources/Roboto/#Roboto"
+      >
+    
     <Grid x:Name="LeGrid">
         <Grid.ColumnDefinitions >
             <ColumnDefinition Width="20"/>
@@ -36,13 +42,9 @@
                   Height="{Binding ActualHeight, ElementName=movieCanvas}" />
             </Border>
         </Canvas>
-        <!--  <Border Grid.Row="2" Grid.Column="1"  BorderBrush="Gainsboro" BorderThickness="2" Grid.RowSpan="3"/>-->
 
-        <!--  <Button x:Name="AddMovie" Content="Add new movie" Grid.Column="1" Grid.Row="5" Margin="0,5"/>
--->
         <TextBlock Grid.Column="2" Grid.Row="1"  Text="WEB CAM" TextAlignment="Center"/>
-        <!-- <Border Grid.Row="2" Grid.Column="2"  BorderBrush="Gainsboro" BorderThickness="2"/>-->
-       
+     
         <Canvas x:Name="localCanvas" Grid.Column="2" Grid.Row="2" >
             <Border BorderBrush="Gainsboro" BorderThickness="2">
                 <Grid x:Name="webCamGridXaml" Width="{Binding ActualWidth, ElementName=localCanvas}"
@@ -52,7 +54,7 @@
         
         <TextBlock Grid.Column="3" Grid.Row="1"  Text="LIVE" TextAlignment="Center"/>
        <Canvas x:Name="liveCanvas" Grid.Column="3" Grid.Row="2">
-            <Border BorderBrush="red" BorderThickness="2">
+            <Border BorderBrush="{DynamicResource PrimaryHueMidBrush}" BorderThickness="2">
                 <Grid x:Name="liveGridXaml" Width="{Binding ActualWidth, ElementName=liveCanvas}"
                   Height="{Binding ActualHeight, ElementName=liveCanvas}" />
             </Border>
@@ -63,9 +65,7 @@
        <Border Grid.Row="4" Grid.Column="2"  BorderBrush="Gainsboro" BorderThickness="2"/>
         <ListBox  x:Name="playlistBox" Grid.Column="2" Grid.Row="4" />
    
-        <TextBlock Grid.Column="3" Grid.Row="3"  Text="MIXER" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,10,0,0"/>
-       <!-- <Border Grid.Row="4" Grid.Column="3"  BorderBrush="Gainsboro" BorderThickness="2"/>
--->
+        <TextBlock Grid.Column="3" Grid.Row="3"  Text="MIXER" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,5,0,0"/>
 
 
         <Canvas  x:Name="mixerCanvas" Grid.Column="3" Grid.Row="4" >
@@ -90,11 +90,12 @@
                     <Button x:Name="AddNewIpCam" Content="Add new web cam" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3" Margin="5,5,10,10" VerticalAlignment="Center" Click="AddNewIpCam_Click"/>
                     <Border BorderBrush="Gainsboro" BorderThickness="2" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="3"/>
 
-                    <Button x:Name="PlaylistPlay" Content="Turn on playlist" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="3" Margin="5,5,10,10" VerticalAlignment="Center" Click="PlaylistPlay_Click"/>
+                    <Button x:Name="PlaylistPlay" Content="Turn on playlist" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="3" Margin="5,5,10,10" VerticalAlignment="Center" Click="PlaylistPlay_Click"
+                            />
 
                     <Button x:Name="AddMovie" Content="Add new movie" Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="3" Margin="5,5,10,10" VerticalAlignment="Center" Click="AddMovie_Click"/>
 
-                    <Button x:Name="TurnOnVolume" Content="Volume off" Grid.Column="0" Grid.Row="5" Margin="0" Click="TurnOffVolume_Click" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <Button x:Name="TurnOnVolume" Content="OFF V." Grid.Column="0" Grid.Row="5" Margin="5,0,0,0" Click="TurnOffVolume_Click" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="10"/>
                     <Slider Name="TurnOnVolumeValue" ValueChanged="TurnOnVolume_Click"  Maximum="100"  VerticalAlignment="Center" Value="0" Grid.Column="1" Grid.Row="5"  Grid.ColumnSpan="3" Margin="5"/>
                 </Grid>
             </Border>

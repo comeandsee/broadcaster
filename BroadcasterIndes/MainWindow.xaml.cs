@@ -22,15 +22,11 @@ namespace BroadcasterIndes
     {
         string[] videoPath = Directory.GetFiles(@"C:\Users\Martusia\source\repos\BroadcasterIndes\Resources");
         List<Uri> movies = new List<Uri>();
-        
        
         Grid liveGrid;
         Grid webCamGrid;
         Border myborder;
         Image imgLocal;
-        Image imgWeb;
-        Image imgWeb1;
-        Image imgWeb2;
         Image imgLive;
         Double volume = 0;
 
@@ -44,9 +40,8 @@ namespace BroadcasterIndes
         int numberOfVideos = 0;
 
         private List< WebCamManager> webCam = new List<WebCamManager>();
+        private List< Image> imgWeb = new List<Image>();
         private int indexListWebCam = 0;
-       // private WebCamManager webCam1;
-      //  private WebCamManager webCam2;
         private WebCamManager locaCam;
         private Playlist playlist = new Playlist();
 
@@ -74,6 +69,7 @@ namespace BroadcasterIndes
             for (int i = 0; i < 3; i++)
             {
                 webCam.Add( new WebCamManager());
+                imgWeb.Add(new Image());
             }
             locaCam = new WebCamManager();
            
@@ -84,6 +80,7 @@ namespace BroadcasterIndes
             imgLocal = new Image();
             Grid.SetRow(imgLocal, currentRowLocal);
             Grid.SetColumn(imgLocal, currentColumnLocal);
+            imgLocal.Stretch = Stretch.Fill;
 
             webCamGrid.Children.Add(imgLocal);
             locaCam.StartCamera(LiveCamStatus.webCamLocal1, imgLocal);
@@ -95,11 +92,7 @@ namespace BroadcasterIndes
             NewPlaceInGrid(numberOfColumnsLocal, ref currentRowLocal, ref currentColumnLocal);
 
 
-
             //web
-            imgWeb = new Image();
-            imgWeb1 = new Image();
-            imgWeb2 = new Image();
 
             //  AddNewWebCam("http://192.168.1.192:8089/video", imgWeb, webCam,indexListWebCam);
             //indexListWebCam++
@@ -110,6 +103,7 @@ namespace BroadcasterIndes
         {
             Grid.SetRow(img, currentRowLocal);
             Grid.SetColumn(img, currentColumnLocal);
+            img.Stretch = Stretch.Fill;
             webCamGrid.Children.Add(img);
 
             webCam[index].StartCamera(LiveCamStatus.webCamLocal2, img, ipWebcam);
@@ -137,7 +131,7 @@ namespace BroadcasterIndes
 
 
             //movies 
-            moviesGrid.ShowGridLines = true;
+           // moviesGrid.ShowGridLines = true;
             ColumnDefinition colDef1 = new ColumnDefinition();
             ColumnDefinition colDef2 = new ColumnDefinition();
             ColumnDefinition colDef3 = new ColumnDefinition();
@@ -163,7 +157,7 @@ namespace BroadcasterIndes
 
             // web grid
             webCamGrid = webCamGridXaml;
-            webCamGrid.ShowGridLines = true;
+           // webCamGrid.ShowGridLines = true;
 
             ColumnDefinition colDefWC1 = new ColumnDefinition();
             ColumnDefinition colDefWC2 = new ColumnDefinition();
@@ -174,7 +168,6 @@ namespace BroadcasterIndes
             RowDefinition rowDefWC2 = new RowDefinition();
             webCamGrid.RowDefinitions.Add(rowDefWC1);
             webCamGrid.RowDefinitions.Add(rowDefWC2);
-
 
  
     }
@@ -199,7 +192,7 @@ namespace BroadcasterIndes
             int numberOfColumns = moviesGrid.ColumnDefinitions.Count;
             int numberOfRows = moviesGrid.RowDefinitions.Count;
 
-           MediaElement meVideo = characterizeVideo(currentRow, currentColumn, uri);
+            MediaElement meVideo = characterizeVideo(currentRow, currentColumn, uri);
             moviesGrid.Children.Add(meVideo);
 
             NewPlaceInGridByColumn(numberOfColumns, ref currentRow, ref currentColumn);
@@ -255,6 +248,7 @@ namespace BroadcasterIndes
         {
             liveGrid.Children.Clear();
             imgLive = new Image();
+            imgLive.Stretch = Stretch.Fill;
             liveGrid.Children.Add(imgLive);
             webCam[index].StartCamera(status, imgLive, ipWebcam);
         }
@@ -262,6 +256,7 @@ namespace BroadcasterIndes
         {
             liveGrid.Children.Clear();
             imgLive = new Image();
+            imgLive.Stretch = Stretch.Fill;
             liveGrid.Children.Add(imgLive);
             locaCam.StartCamera(status, imgLive);
         }
@@ -305,7 +300,7 @@ namespace BroadcasterIndes
         private void AddNewIpCam_Click(object sender, RoutedEventArgs e)
         {
             string ipWebcam = webCameraIp.Text;
-            AddNewWebCam(ipWebcam,imgWeb1, indexListWebCam);
+            AddNewWebCam(ipWebcam, imgWeb[indexListWebCam], indexListWebCam);
             indexListWebCam++;
     }
 
@@ -328,6 +323,7 @@ namespace BroadcasterIndes
                 movieNew.LoadedBehavior = MediaState.Play;
                 movieNew.MediaEnded += new RoutedEventHandler(PlaylistPlay_Click);
                 movieNew.Volume = volume;
+                movieNew.Stretch = Stretch.Fill;
 
                 liveGrid.Children.Add(movieNew);
                 playlist.NextIndexLive += 1;
