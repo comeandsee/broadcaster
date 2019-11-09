@@ -1,0 +1,69 @@
+﻿<Window x:Class="BroadcasterIndes.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:BroadcasterIndes"
+        xmlns:wpfTool="clr-namespace:Xceed.Wpf.Toolkit;assembly=Xceed.Wpf.Toolkit"
+        mc:Ignorable="d"
+        Title="BROADCASTER" Height="auto" Width="auto" FontSize="15"
+        HorizontalAlignment="Center" VerticalAlignment="Center"
+        >
+    <Grid x:Name="LeGrid">
+        <Grid.ColumnDefinitions >
+            <ColumnDefinition Width="20"/>
+            <ColumnDefinition Width="*" x:Name="colOne"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="20"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="20"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.ColumnSpan="3" Grid.Column="1" Grid.Row="0" Text="BROADCASTER" FontSize="30" FontWeight="Bold"  TextAlignment="Center"  />
+
+        <Canvas  x:Name="movieCanvas" Grid.Column="1" Grid.Row="2" Grid.RowSpan="3" Margin="0,0,10,0">
+            <Border BorderBrush="Gainsboro" BorderThickness="2">
+
+                <Grid x:Name="moviesGrid" Width="{Binding ActualWidth, ElementName=movieCanvas}"
+                  Height="{Binding ActualHeight, ElementName=movieCanvas}" />
+            </Border>
+        </Canvas>
+        <!--  <Border Grid.Row="2" Grid.Column="1"  BorderBrush="Gainsboro" BorderThickness="2" Grid.RowSpan="3"/>-->
+        
+        <Button x:Name="AddMovie" Content="Add new movie" Grid.Column="1" Grid.Row="5" Margin="0,5"/>
+
+        <TextBlock Grid.Column="2" Grid.Row="1"  Text="WEB CAM" TextAlignment="Center"/>
+        <!-- <Border Grid.Row="2" Grid.Column="2"  BorderBrush="Gainsboro" BorderThickness="2"/>-->
+       
+        <Canvas x:Name="localCanvas" Grid.Column="2" Grid.Row="2" >
+            <Border BorderBrush="Gainsboro" BorderThickness="2">
+                <Grid x:Name="webCamGridXaml" Width="{Binding ActualWidth, ElementName=localCanvas}"
+                  Height="{Binding ActualHeight, ElementName=localCanvas}" />
+            </Border>
+        </Canvas>
+        
+        <TextBlock Grid.Column="3" Grid.Row="1"  Text="LIVE" TextAlignment="Center"/>
+       <Canvas x:Name="liveCanvas" Grid.Column="3" Grid.Row="2">
+            <Border BorderBrush="red" BorderThickness="2">
+                <Grid x:Name="liveGridXaml" Width="{Binding ActualWidth, ElementName=liveCanvas}"
+                  Height="{Binding ActualHeight, ElementName=liveCanvas}" />
+            </Border>
+        </Canvas>
+
+        <TextBlock Grid.Column="2" Grid.Row="3"  Text="PLAYLIST" TextAlignment="Center" Margin="0,5,0,0"/>
+        <Border Grid.Row="4" Grid.Column="2"  BorderBrush="Gainsboro" BorderThickness="2"/>
+        <ListBox  x:Name="playlistBox" Grid.Column="2" Grid.Row="4" />
+        
+        <TextBlock Grid.Column="3" Grid.Row="3"  Text="MIXER" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,10,0,0"/>
+        <Border Grid.Row="4" Grid.Column="3"  BorderBrush="Gainsboro" BorderThickness="2"/>
+
+    </Grid>
+</Window>
