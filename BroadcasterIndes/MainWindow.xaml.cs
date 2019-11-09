@@ -1,6 +1,7 @@
 ﻿using Accord.Video.FFMPEG;
 using AForge.Video;
 using Indes2;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -28,8 +29,23 @@ namespace BroadcasterIndes
         Border myborder;
         Image imgLocal;
         Image imgWeb;
+        Image imgWeb1;
+        Image imgWeb2;
         Image imgLive;
+        Double volume = 0;
+
+        int currentRowLocal = 0;
+        int currentColumnLocal = 0;
+        int numberOfColumnsLocal = 1;
+
+
+        int currentRow = 0;
+        int currentColumn = 0;
+        int numberOfVideos = 0;
+
         private WebCamManager webCam;
+        private WebCamManager webCam1;
+        private WebCamManager webCam2;
         private WebCamManager locaCam;
         private Playlist playlist = new Playlist();
 
@@ -50,60 +66,64 @@ namespace BroadcasterIndes
 
             InitializeWebCams();
 
-          
-
-         
-
         }
 
         private void InitializeWebCams()
         {
             webCam = new WebCamManager();
             locaCam = new WebCamManager();
+            webCam1 = new WebCamManager();
+            webCam2 = new WebCamManager();
 
 
-            int currentRow = 0;
-            int currentColumn = 0;
-            int numberOfColumns = 1;
             //local
 
             imgLocal = new Image();
-            Grid.SetRow(imgLocal, currentRow);
-            Grid.SetColumn(imgLocal, currentColumn);
+            Grid.SetRow(imgLocal, currentRowLocal);
+            Grid.SetColumn(imgLocal, currentColumnLocal);
 
             webCamGrid.Children.Add(imgLocal);
             locaCam.StartCamera(LiveCamStatus.webCamLocal1, imgLocal);
-            imgLocal.MouseDown += new MouseButtonEventHandler((sender, e) => {
+            imgLocal.MouseDown += new MouseButtonEventHandler((sender, e) =>
+            {
                 meLocalCam_Clicked(sender, e, LiveCamStatus.webCamLocal1);
             });
 
-            NewPlaceInGrid(numberOfColumns,ref currentRow,ref currentColumn);
+            NewPlaceInGrid(numberOfColumnsLocal, ref currentRowLocal, ref currentColumnLocal);
 
 
 
             //web
             imgWeb = new Image();
-         //   imgWeb.Source = new BitmapImage(new Uri (@"C:\Users\Martusia\source\repos\Indes2\Indes2\back.jpg"));
-            Grid.SetRow(imgWeb, currentRow);
-            Grid.SetColumn(imgWeb, currentColumn);
-            webCamGrid.Children.Add(imgWeb);
-            
-            webCam.StartCamera(LiveCamStatus.webCamLocal2, imgWeb);
-            imgWeb.MouseDown += new MouseButtonEventHandler((sender, e) => {
-                meWebCam_Clicked(sender, e, LiveCamStatus.webCamLocal2);
-            });
+            imgWeb1 = new Image();
+            imgWeb2 = new Image();
 
-            NewPlaceInGrid(numberOfColumns, ref currentRow, ref currentColumn);
-
-
+          //  AddNewWebCam("http://192.168.1.192:8089/video", imgWeb, webCam);
 
         }
+
+        private void AddNewWebCam(String ipWebcam, Image img, WebCamManager camManager)
+        {
+            Grid.SetRow(img, currentRowLocal);
+            Grid.SetColumn(img, currentColumnLocal);
+            webCamGrid.Children.Add(img);
+
+            camManager.StartCamera(LiveCamStatus.webCamLocal2, img, ipWebcam);
+            img.MouseDown += new MouseButtonEventHandler((sender, e) =>
+            {
+                meWebCam_Clicked(sender, e, LiveCamStatus.webCamLocal2, ipWebcam);
+            });
+
+            NewPlaceInGrid(numberOfColumnsLocal, ref currentRowLocal, ref currentColumnLocal);
+        }
+
         public void loadMovies()
         {
             for (int i = 0; i < videoPath.Length; i++)
             {
                 movies.Add(new Uri(videoPath[i]));
             }
+            numberOfVideos = videoPath.Length;
         }
 
         public void loadGrid()
@@ -159,15 +179,27 @@ namespace BroadcasterIndes
         {
             int numberOfColumns = grid.ColumnDefinitions.Count;
             int numberOfRows = grid.RowDefinitions.Count;
-            int currentRow = 0;
-            int currentColumn = 0;
+          
             for (int i = 0; i < movies.Count; i++)
             {
-                MediaElement meVideo = characterizeVideo(uris, currentRow, currentColumn, i);
+                MediaElement meVideo = characterizeVideo( currentRow, currentColumn, uris.ElementAt(i));
                 grid.Children.Add(meVideo);
 
                 NewPlaceInGridByColumn(numberOfColumns, ref currentRow, ref currentColumn);
             }
+           
+        }
+        public void loadNewVideoToGallery( String path)
+        {
+            Uri uri = new Uri(path);
+            int numberOfColumns = moviesGrid.ColumnDefinitions.Count;
+            int numberOfRows = moviesGrid.RowDefinitions.Count;
+
+           MediaElement meVideo = characterizeVideo(currentRow, currentColumn, uri);
+            moviesGrid.Children.Add(meVideo);
+
+            NewPlaceInGridByColumn(numberOfColumns, ref currentRow, ref currentColumn);
+            
         }
         private static void NewPlaceInGridByColumn(int numberOfColumns, ref int currentRow, ref int currentColumn)
         {
@@ -190,19 +222,19 @@ namespace BroadcasterIndes
             }
         }
 
-        private MediaElement characterizeVideo(List<Uri> uris, int currentRow, int currentColumn, int i)
+        private MediaElement characterizeVideo(int currentRow, int currentColumn, Uri uri)
         {
             MediaElement meVideo = new MediaElement();
             meVideo.HorizontalAlignment = HorizontalAlignment.Stretch;
             meVideo.VerticalAlignment = VerticalAlignment.Stretch;
             meVideo.Stretch = Stretch.Fill;
             meVideo.ScrubbingEnabled = true;
-            meVideo.Source = uris.ElementAt(i);
+            meVideo.Source = uri;
 
             Grid.SetRow(meVideo, currentRow);
             Grid.SetColumn(meVideo, currentColumn);
             meVideo.LoadedBehavior = MediaState.Manual;
-            meVideo.Volume = 0;
+            meVideo.Volume = volume;
             meVideo.Loaded += (sender, args) =>
             {
                 MediaElement me = sender as MediaElement;
@@ -215,12 +247,12 @@ namespace BroadcasterIndes
         }
 
 
-        private void meWebCam_Clicked(object sender, MouseButtonEventArgs e, LiveCamStatus status)
+        private void meWebCam_Clicked(object sender, MouseButtonEventArgs e, LiveCamStatus status, String ipWebcam)
         {
             liveGrid.Children.Clear();
             imgLive = new Image();
             liveGrid.Children.Add(imgLive);
-            webCam.StartCamera(status, imgLive);
+            webCam.StartCamera(status, imgLive, ipWebcam);
         }
         private void meLocalCam_Clicked(object sender, MouseButtonEventArgs e, LiveCamStatus status)
         {
@@ -240,16 +272,12 @@ namespace BroadcasterIndes
                     meVideo.Stretch = Stretch.Fill;
                     meVideo.Height = liveCanvas.ActualHeight;
                     meVideo.Width = liveCanvas.ActualWidth;
-                    meVideo.Volume = 0;
+                    meVideo.Volume = volume;
 
                     meVideo.LoadedBehavior = MediaState.Play;
                     meVideo.Visibility = Visibility.Visible;
-
-                    myborder = new Border();
-                    myborder.BorderBrush = Brushes.Red;
-                    myborder.BorderThickness = new Thickness(1, 1, 1, 1);
-                    myborder.Child = meVideo;
-                liveGrid.Children.Add(myborder);
+                
+                liveGrid.Children.Add(meVideo);
 
                 }
 
@@ -265,11 +293,76 @@ namespace BroadcasterIndes
                 String name = senderVideo.Source.Segments.GetValue(nameIndex).ToString();
                 playlistBox.Items.Add(name);
 
-                int me = playlist.GetIndex(name);
+              //  int me = playlist.GetIndex(name);
             }
 
         }
-       
+
+        private void AddNewIpCam_Click(object sender, RoutedEventArgs e)
+        {
+            string ipWebcam = webCameraIp.Text;
+            AddNewWebCam(ipWebcam,imgWeb1,webCam1);
+    }
+
+        private void PlaylistPlay_Click(object sender, RoutedEventArgs e)
+        {
+
+            PlayVideoList(playlist, sender, e);
+        }
+
+        private void PlayVideoList(Playlist playlist, object sender, RoutedEventArgs e)
+        {
+            //LIVE
+            liveGrid.Children.Clear();
+            if (!playlist.CheckIfPlaylistLiveDone() )
+            {
+
+                MediaElement movie = playlist.GetVideoList()[playlist.NextIndexLive];
+                MediaElement movieNew = new MediaElement();
+                movieNew.Source = movie.Source;
+                movieNew.LoadedBehavior = MediaState.Play;
+                movieNew.MediaEnded += new RoutedEventHandler(PlaylistPlay_Click);
+                movieNew.Volume = volume;
+
+                liveGrid.Children.Add(movieNew);
+                playlist.NextIndexLive += 1;
+            }
+            else if (playlist.CheckIfPlaylistNotNull())
+            {
+                playlist.NextIndexLive = 0;
+                PlayVideoList(playlist, sender, e);
+            }
+
+        }
+
+        private void TurnOnVolume_Click(object sender, RoutedEventArgs e)
+        {
+            volume = Convert.ToDouble(TurnOnVolumeValue.Value) / 100;
+            ChangeVolume(volume);
+        }
+
+        private void ChangeVolume(double volume)
+        {
+            var media = this.liveGrid.Children.OfType<MediaElement>().FirstOrDefault();
+            if (media != null) media.Volume = volume;
+        }
+
+        private void TurnOffVolume_Click(object sender, RoutedEventArgs e)
+        {
+            ChangeVolume(0);
+        }
+
+        private void AddMovie_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "Video (*.mp4)|*.mp4";
+            if (openFileDialog.ShowDialog() == true)
+            {
+                string me = openFileDialog.FileName;
+                loadNewVideoToGallery(me);
+
+            }
+        }
     }
 }
 

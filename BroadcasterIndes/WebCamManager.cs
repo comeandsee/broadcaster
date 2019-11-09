@@ -19,7 +19,7 @@ namespace Indes2
 {
     class WebCamManager : IDisposable
     {
-        private string ipWebcam = "http://192.168.1.192:8089//video";
+       // private string ipWebcam = "http://192.168.1.192:8089//video";
 
         public ObservableCollection<FilterInfo> VideoDevices { get; set; }
         private FilterInfo _currentDevice;
@@ -113,7 +113,7 @@ namespace Indes2
 
     
 
-        public void StartCamera(LiveCamStatus cameraId, System.Windows.Controls.Image image)
+        public void StartCamera(LiveCamStatus cameraId, System.Windows.Controls.Image image, String ipWebcam = null)
         {
 
             switch (cameraId)
