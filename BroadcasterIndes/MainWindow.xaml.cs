@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
@@ -31,8 +32,8 @@ namespace BroadcasterIndes
         Double volume = 0;
 
         int currentRowLocal = 0;
-        int currentColumnLocal = 0;
-        int numberOfColumnsLocal = 1;
+        int currentColumnLocal = 1;
+        int numberOfColumnsLocal = 2;
 
 
         int currentRow = 0;
@@ -44,6 +45,9 @@ namespace BroadcasterIndes
         private int indexListWebCam = 0;
         private WebCamManager locaCam;
         private Playlist playlist = new Playlist();
+        private WebBrowser web = new WebBrowser();
+
+        private bool localCamInLive = false;
 
         public enum LiveCamStatus
         {
@@ -55,6 +59,7 @@ namespace BroadcasterIndes
         }
         public MainWindow()
         {
+           // BoxedAppSDK.NativeMethods.BoxedAppSDK_Init();
             InitializeComponent();
             loadMovies();
             loadGrid();
@@ -68,28 +73,16 @@ namespace BroadcasterIndes
         {
             for (int i = 0; i < 3; i++)
             {
-                webCam.Add( new WebCamManager());
+                webCam.Add(new WebCamManager());
                 imgWeb.Add(new Image());
             }
             locaCam = new WebCamManager();
-           
+
 
 
             //local
 
-            imgLocal = new Image();
-            Grid.SetRow(imgLocal, currentRowLocal);
-            Grid.SetColumn(imgLocal, currentColumnLocal);
-            imgLocal.Stretch = Stretch.Fill;
-
-            webCamGrid.Children.Add(imgLocal);
-            locaCam.StartCamera(LiveCamStatus.webCamLocal1, imgLocal);
-            imgLocal.MouseDown += new MouseButtonEventHandler((sender, e) =>
-            {
-                meLocalCam_Clicked(sender, e, LiveCamStatus.webCamLocal1);
-            });
-
-            NewPlaceInGrid(numberOfColumnsLocal, ref currentRowLocal, ref currentColumnLocal);
+            AddLocalCam();
 
 
             //web
@@ -97,6 +90,23 @@ namespace BroadcasterIndes
             //  AddNewWebCam("http://192.168.1.192:8089/video", imgWeb, webCam,indexListWebCam);
             //indexListWebCam++
 
+        }
+
+        private void AddLocalCam()
+        {
+            imgLocal = new Image();
+            Grid.SetRow(imgLocal, 0);
+            Grid.SetColumn(imgLocal, 0);
+            imgLocal.Stretch = Stretch.Fill;
+
+            webCamGrid.Children.Add(imgLocal);
+            locaCam.StartCamera(LiveCamStatus.webCamLocal1, imgLocal);
+            imgLocal.MouseDown += new MouseButtonEventHandler((sender, e) =>
+            {
+                localCamInLive = true;
+                meLocalCam_Clicked(sender, e, LiveCamStatus.webCamLocal1);
+            });
+          
         }
 
         private void AddNewWebCam(String ipWebcam, Image img, int index)
@@ -110,9 +120,14 @@ namespace BroadcasterIndes
             img.MouseDown += new MouseButtonEventHandler((sender, e) =>
             {
                 meWebCam_Clicked(sender, e, LiveCamStatus.webCamLocal2, ipWebcam, index );
+                if (localCamInLive)
+                {
+                    AddLocalCam();
+                    localCamInLive = false;
+                }
             });
 
-            NewPlaceInGrid(numberOfColumnsLocal, ref currentRowLocal, ref currentColumnLocal);
+            NewPlaceInGridByColumn(numberOfColumnsLocal, ref currentRowLocal, ref currentColumnLocal);
         }
 
         public void loadMovies()
@@ -188,7 +203,7 @@ namespace BroadcasterIndes
         }
         public void loadNewVideoToGallery( String path)
         {
-            Uri uri = new Uri(path);
+            Uri uri = new Uri(path, UriKind.RelativeOrAbsolute);
             int numberOfColumns = moviesGrid.ColumnDefinitions.Count;
             int numberOfRows = moviesGrid.RowDefinitions.Count;
 
@@ -231,15 +246,34 @@ namespace BroadcasterIndes
             Grid.SetRow(meVideo, currentRow);
             Grid.SetColumn(meVideo, currentColumn);
             meVideo.LoadedBehavior = MediaState.Manual;
-            meVideo.Volume = volume;
+            meVideo.Volume = 0;
             meVideo.Loaded += (sender, args) =>
             {
                 MediaElement me = sender as MediaElement;
                 me.Play();
                 // me.Pause();
             };
-            meVideo.MouseLeftButtonDown += new MouseButtonEventHandler(meVideo_Clicked);
-            meVideo.MouseRightButtonDown += new MouseButtonEventHandler(AddToPlaylist);
+            meVideo.MouseLeftButtonDown += new MouseButtonEventHandler((sender, e) =>
+            {
+                meVideo_Clicked(sender, e);
+                if (localCamInLive)
+                {
+                    AddLocalCam();
+                    localCamInLive = false;
+                }
+            });
+
+
+            meVideo.MouseRightButtonDown += new MouseButtonEventHandler((sender, e) =>
+            {
+                AddToPlaylist(sender, e);
+                if (localCamInLive)
+                {
+                    AddLocalCam();
+                    localCamInLive = false;
+                }
+            });
+
             return meVideo;
         }
 
@@ -292,20 +326,29 @@ namespace BroadcasterIndes
                 String name = senderVideo.Source.Segments.GetValue(nameIndex).ToString();
                 playlistBox.Items.Add(name);
 
-              //  int me = playlist.GetIndex(name);
-            }
+               
+                    //  int me = playlist.GetIndex(name);
+                }
 
         }
 
         private void AddNewIpCam_Click(object sender, RoutedEventArgs e)
         {
-            string ipWebcam = webCameraIp.Text;
-            AddNewWebCam(ipWebcam, imgWeb[indexListWebCam], indexListWebCam);
-            indexListWebCam++;
+            if (indexListWebCam < 3)
+            {
+                string ipWebcam = webCameraIp.Text + "/video";
+                AddNewWebCam(ipWebcam, imgWeb[indexListWebCam], indexListWebCam);
+                indexListWebCam++;
+            }
     }
 
         private void PlaylistPlay_Click(object sender, RoutedEventArgs e)
         {
+            if (localCamInLive)
+            {
+                AddLocalCam();
+                localCamInLive = false;
+            }
 
             PlayVideoList(playlist, sender, e);
         }
@@ -363,6 +406,59 @@ namespace BroadcasterIndes
                 loadNewVideoToGallery(me);
 
             }
+        }
+
+        private void AddMovieURL_Click(object sender, RoutedEventArgs e)
+        {
+            //Uri url = new Uri(movieUrl.Text);
+            //  string movieCode = url.Query.Remove(0,3);
+            //string path = "http://www.youtube.com/embed/" + movieCode ;
+
+            FileInfo file = new FileInfo(@"C:\Users\Martusia\source\repos\BroadcasterIndes\Resources\1.mp4");
+
+            var currentDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            // Default installation path of VideoLAN.LibVLC.Windows
+            var libDirectory =
+                new DirectoryInfo(Path.Combine(currentDirectory, "libvlc", IntPtr.Size == 4 ? "win-x86" : "win-x64"));
+
+            using (var mediaPlayer = new Vlc.DotNet.Core.VlcMediaPlayer(libDirectory))
+            {
+
+                var mediaOptions = new[]
+                {
+                ":sout=#rtp{sdp=rtsp://192.168.1.162:8008/test}",
+                ":sout-keep"
+            };
+
+          //      mediaPlayer.SetMedia(new Uri("http://hls1.addictradio.net/addictrock_aac_hls/playlist.m3u8"),
+            //        mediaOptions);
+
+                mediaPlayer.SetMedia(file, mediaOptions);
+
+                mediaPlayer.Play();
+
+                 // Streaming on rtsp://192.168.1.162:8008/test
+          
+
+            }
+        }
+        
+
+        private void MenuItemDelete_Click(object sender, RoutedEventArgs e)
+        {
+            if (playlistBox.SelectedIndex == -1)
+            {
+                return;
+            }
+
+            
+
+         //   MediaElement senderVideo = sender as MediaElement;
+        //    if (senderVideo != null)
+          //  
+                playlist.DelVideo(playlistBox.SelectedItem.ToString());
+            playlistBox.Items.RemoveAt(playlistBox.SelectedIndex);
+            
         }
     }
 }

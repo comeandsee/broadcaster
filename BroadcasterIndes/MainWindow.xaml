@@ -13,9 +13,13 @@
         TextElement.FontWeight="Medium"
         TextElement.FontSize="14"
         FontFamily="pack://application:,,,/MaterialDesignThemes.Wpf;component/Resources/Roboto/#Roboto"
-      >
     
-    <Grid x:Name="LeGrid">
+        >
+
+    <Grid x:Name="LeGrid" >
+        <Grid.Background>
+            <ImageBrush ImageSource="back.jpg" Stretch="UniformToFill"/>
+        </Grid.Background>
         <Grid.ColumnDefinitions >
             <ColumnDefinition Width="20"/>
             <ColumnDefinition Width="*" x:Name="colOne"/>
@@ -35,6 +39,8 @@
 
         <TextBlock Grid.ColumnSpan="3" Grid.Column="1" Grid.Row="0" Text="BROADCASTER" FontSize="30" FontWeight="Bold"  TextAlignment="Center"  />
 
+        <TextBlock   Grid.Column="1" Grid.Row="1"  Text="MOVIES" TextAlignment="Center"/>
+
         <Canvas  x:Name="movieCanvas" Grid.Column="1" Grid.Row="2" Grid.RowSpan="3" Margin="0,0,10,0">
             <Border BorderBrush="Gainsboro" BorderThickness="2">
 
@@ -44,61 +50,68 @@
         </Canvas>
 
         <TextBlock Grid.Column="2" Grid.Row="1"  Text="WEB CAM" TextAlignment="Center"/>
-     
-        <Canvas x:Name="localCanvas" Grid.Column="2" Grid.Row="2" >
+
+        <Canvas x:Name="webCanvas" Grid.Column="2" Grid.Row="2" >
             <Border BorderBrush="Gainsboro" BorderThickness="2">
-                <Grid x:Name="webCamGridXaml" Width="{Binding ActualWidth, ElementName=localCanvas}"
-                  Height="{Binding ActualHeight, ElementName=localCanvas}" />
+                <Grid x:Name="webCamGridXaml" Width="{Binding ActualWidth, ElementName=webCanvas}"
+                  Height="{Binding ActualHeight, ElementName=webCanvas}" />
             </Border>
         </Canvas>
-        
+
         <TextBlock Grid.Column="3" Grid.Row="1"  Text="LIVE" TextAlignment="Center"/>
-       <Canvas x:Name="liveCanvas" Grid.Column="3" Grid.Row="2">
+        <Canvas x:Name="liveCanvas" Grid.Column="3" Grid.Row="2" Margin="5,0,0,0">
             <Border BorderBrush="{DynamicResource PrimaryHueMidBrush}" BorderThickness="2">
                 <Grid x:Name="liveGridXaml" Width="{Binding ActualWidth, ElementName=liveCanvas}"
                   Height="{Binding ActualHeight, ElementName=liveCanvas}" />
             </Border>
         </Canvas>
 
-        
+
         <TextBlock Grid.Column="2" Grid.Row="3"  Text="PLAYLIST" TextAlignment="Center" Margin="0,5,0,0"/>
-       <Border Grid.Row="4" Grid.Column="2"  BorderBrush="Gainsboro" BorderThickness="2"/>
-        <ListBox  x:Name="playlistBox" Grid.Column="2" Grid.Row="4" />
-   
-        <TextBlock Grid.Column="3" Grid.Row="3"  Text="MIXER" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,5,0,0"/>
+        <Border Grid.Row="4" Grid.Column="2"  BorderBrush="Gainsboro" BorderThickness="2"/>
+        <ListBox   x:Name="playlistBox" Grid.Column="2" Grid.Row="4" >
+            <ListBox.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Delete" Click="MenuItemDelete_Click"/>
+                </ContextMenu>
+            </ListBox.ContextMenu>
+        </ListBox>
 
 
-        <Canvas  x:Name="mixerCanvas" Grid.Column="3" Grid.Row="4" >
-            <Border BorderBrush="Gainsboro" BorderThickness="2">
-                <Grid x:Name="mixerGrid" Width="{Binding ActualWidth, ElementName=mixerCanvas}"
+
+        <Canvas  x:Name="mixerCanvas" Margin="10,0,0,0" Grid.Column="3" Grid.Row="4"  >
+
+            <Grid x:Name="mixerGrid" Width="{Binding ActualWidth, ElementName=mixerCanvas}"
                   Height="{Binding ActualHeight, ElementName=mixerCanvas}" >
-                    <Grid.ColumnDefinitions >
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
+                <Grid.ColumnDefinitions >
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
 
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                   </Grid.RowDefinitions>
-                  
-                    <TextBox x:Name="webCameraIp" Text="http://192.168.1.192:8089/video" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                    <Button x:Name="AddNewIpCam" Content="Add new web cam" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3" Margin="5,5,10,10" VerticalAlignment="Center" Click="AddNewIpCam_Click"/>
-                    <Border BorderBrush="Gainsboro" BorderThickness="2" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="3"/>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
 
-                    <Button x:Name="PlaylistPlay" Content="Turn on playlist" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="3" Margin="5,5,10,10" VerticalAlignment="Center" Click="PlaylistPlay_Click"
+                <Button x:Name="AddMovie" Content="Add new movie" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" Margin="1,1,5,5" VerticalAlignment="Center" Click="AddMovie_Click"/>
+
+                <TextBox x:Name="webCameraIp" Text="http://192.168.1.192:8089" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                <Button x:Name="AddNewIpCam" Content="Add new IP web cam" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="3" Margin="1,1,5,5" VerticalAlignment="Center" Click="AddNewIpCam_Click"/>
+
+                <!-- <Border BorderBrush="Gainsboro" BorderThickness="2" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="3"/>
+-->
+                <Button x:Name="PlaylistPlay" Content="Turn on playlist" Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="3" Margin="1,1.6,5.4,6.4" VerticalAlignment="Center" Click="PlaylistPlay_Click"
                             />
 
-                    <Button x:Name="AddMovie" Content="Add new movie" Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="3" Margin="5,5,10,10" VerticalAlignment="Center" Click="AddMovie_Click"/>
 
-                    <Button x:Name="TurnOnVolume" Content="OFF V." Grid.Column="0" Grid.Row="5" Margin="5,0,0,0" Click="TurnOffVolume_Click" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="10"/>
-                    <Slider Name="TurnOnVolumeValue" ValueChanged="TurnOnVolume_Click"  Maximum="100"  VerticalAlignment="Center" Value="0" Grid.Column="1" Grid.Row="5"  Grid.ColumnSpan="3" Margin="5"/>
-                </Grid>
-            </Border>
+                <Button x:Name="TurnOnVolume" Content="OFF V." Grid.Column="0" Grid.Row="4" Margin="5,0,0,0" Click="TurnOffVolume_Click" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="10"/>
+                <Slider Name="TurnOnVolumeValue" ValueChanged="TurnOnVolume_Click"  Maximum="100"  VerticalAlignment="Center" Value="0" Grid.Column="1" Grid.Row="4"  Grid.ColumnSpan="3" Margin="5"/>
+            </Grid>
+
         </Canvas>
     </Grid>
 </Window>

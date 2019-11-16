@@ -22,7 +22,7 @@ namespace Indes2
         {
             this.VideoNames.Add(name);
         }
-        public void DelVideo(MediaElement name)
+        public void DelVideo(String name)
         {
             this.VideoNames.RemoveAt(GetIndex(name));
         }
